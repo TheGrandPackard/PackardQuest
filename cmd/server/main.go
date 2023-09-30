@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"log"
+	"math/rand"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/thegrandpackard/PackardQuest/api"
 	"github.com/thegrandpackard/PackardQuest/managers"
@@ -17,6 +19,8 @@ var (
 )
 
 func init() {
+	rand.Seed(time.Now().UnixNano())
+
 	playersFile = flag.String("players-file", "players.json", "file database with players")
 	flag.Parse()
 }

@@ -1,11 +1,11 @@
 package models
 
 type Player struct {
-	ID       int      `json:"id"`
-	Name     string   `json:"name"`
-	WandID   int      `json:"wandID"`
-	House    string   `json:"house"`
-	Progress Progress `json:"progress"`
+	ID       int           `json:"id"`
+	Name     string        `json:"name"`
+	WandID   int           `json:"wandID"`
+	House    HogwartsHouse `json:"house"`
+	Progress Progress      `json:"progress"`
 }
 
 type Progress struct {
@@ -22,4 +22,13 @@ const (
 	HogwartsHouseHufflepuff = "Hufflepuff"
 	HogwartsHouseRavenclaw  = "Ravenclaw"
 	HogwartsHouseSlytherin  = "Slytherin"
+)
+
+var (
+	HogwartsHouses = []HogwartsHouse{
+		HogwartsHouseGryffindor,
+		HogwartsHouseHufflepuff,
+		HogwartsHouseRavenclaw,
+		HogwartsHouseSlytherin,
+	}
 )

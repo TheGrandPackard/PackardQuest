@@ -14,3 +14,12 @@ type Progress struct {
 }
 
 type Players []*Player
+
+type HogwartsHouse string
+
+const (
+	HogwartsHouseGryffindor = "Gryffindor"
+	HogwartsHouseHufflepuff = "Hufflepuff"
+	HogwartsHouseRavenclaw  = "Ravenclaw"
+	HogwartsHouseSlytherin  = "Slytherin"
+)

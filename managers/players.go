@@ -29,8 +29,17 @@ func (p *playerManager) GetPlayerByWandID(wandID int) (*models.Player, error) {
 	return p.store.GetPlayerByWandID(wandID)
 }
 
+func (p *playerManager) getPlayerHouse() models.HogwartsHouse {
+	// Randomly place a player into a house, but balance house distribution
+	// Houses: Gryffindor, Slytherin, Ravenclaw, Hufflepuff
+
+	return models.HogwartsHouseGryffindor
+}
+
 func (p *playerManager) CreatePlayer(playerName string, wandID int) (*models.Player, error) {
-	player := &models.Player{Name: playerName, WandID: wandID}
+	house := p.getPlayerHouse()
+
+	player := &models.Player{Name: playerName, WandID: wandID, House: house}
 	if err := p.store.CreatePlayer(player); err != nil {
 		return nil, err
 	}

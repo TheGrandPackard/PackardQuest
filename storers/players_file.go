@@ -63,7 +63,31 @@ func (s *fileStore) writePlayersFile(players models.Players) error {
 	return ioutil.WriteFile(s.fileName, playersBytes, 0)
 }
 
+func (s *fileStore) getNextPlayerID() (int, error) {
+	maxId := 0
+
+	players, err := s.readPlayersFile()
+	if err != nil {
+		return 0, err
+	}
+
+	for _, player := range players {
+		if player.ID > maxId {
+			maxId = player.ID
+		}
+	}
+
+	return maxId + 1, nil
+}
+
 func (s *fileStore) CreatePlayer(player *models.Player) error {
+	// TODO: This sucks. Use UUIDs instead
+	nextId, err := s.getNextPlayerID()
+	if err != nil {
+		return err
+	}
+	player.ID = nextId
+
 	players, err := s.readPlayersFile()
 	if err != nil {
 		return err

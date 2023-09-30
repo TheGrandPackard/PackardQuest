@@ -1,0 +1,12 @@
+{
+  "name": "packardquest",
+  "version": "1.0.0",
+  "description": "PackardQuest is a personal project that imitates the [MagiQuest](https://www.greatwolf.com/southern-california/waterpark-attractions/attractions/magiquest) game. PackardQuest provides software to facilitate a multiplayer experience using the official or homebrew wands. Hardware schematics and firmware are also available.",
+  "main": "index.js",
+  "scripts": {
+    "api": "(cd cmd/server && go run main.go)",
+    "web": "(cd web && npm i && npm run start)"
+  },
+  "author": "",
+  "license": "ISC"
+}

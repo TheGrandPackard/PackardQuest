@@ -29,8 +29,8 @@ func (a *api) getPlayer(c *gin.Context) {
 }
 
 type registerPlayerRequest struct {
-	PlayerName string `json:"playerName"`
-	WandID     int    `json:"wandId"`
+	Name   string `json:"name"`
+	WandID int    `json:"wandId"`
 }
 
 func (a *api) registerPlayer(c *gin.Context) {
@@ -41,7 +41,7 @@ func (a *api) registerPlayer(c *gin.Context) {
 		return
 	}
 
-	resp, err := a.playerManager.CreatePlayer(req.PlayerName, req.WandID)
+	resp, err := a.playerManager.CreatePlayer(req.Name, req.WandID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, newApiError(err))
 		return

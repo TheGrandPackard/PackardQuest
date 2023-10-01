@@ -7,14 +7,16 @@ const Home:React.FC = () => {
   const [player] = useRecoilState(PlayerState);
 
   if(player && player.progress.pensieve === true) {
-    return <>
+    return <div className={player.house + '-bg'}>
       <>Good luck in your studies, and may the best house win the house cup!</>
       <Scoreboard/>
-    </>
+    </div>
   }
 
   if(player && player.progress.sortingHat === true) {
-    return <>The headmaster wishes to see you.</>
+    return <div className={player.house + '-bg'}>
+        The headmaster wishes to see you.
+      </div>
   }
   
   return <>Proceed to the Great Hall to be sorted into your house.</>

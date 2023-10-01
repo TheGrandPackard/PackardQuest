@@ -3,6 +3,7 @@ package managers
 import (
 	"math"
 	"math/rand"
+	"sort"
 
 	"github.com/thegrandpackard/PackardQuest/models"
 	"github.com/thegrandpackard/PackardQuest/storers"
@@ -83,4 +84,51 @@ func (p *playerManager) CreatePlayer(playerName string, wandID int) (*models.Pla
 	}
 
 	return player, nil
+}
+
+func (p *playerManager) GetScoreboards() ([]*models.HouseScore, []*models.PlayerScore, error) {
+	// Get all players
+	players, err := p.store.GetPlayers()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Get house and player scores
+	houseScores := []*models.HouseScore{}
+	playerScores := []*models.PlayerScore{}
+
+	houseScoreMap := map[models.HogwartsHouse]int{}
+	for _, house := range models.HogwartsHouses {
+		houseScoreMap[house] = 0
+	}
+	for _, player := range players {
+		score := player.GetScore()
+		playerScores = append(playerScores, &models.PlayerScore{
+			Name:  player.Name,
+			House: player.House,
+			Score: score,
+		})
+
+		houseScoreMap[player.House] += score
+	}
+
+	// Flatten house score map
+	for house, score := range houseScoreMap {
+		houseScores = append(houseScores, &models.HouseScore{
+			Name:  house,
+			Score: score,
+		})
+	}
+
+	// Sort house scores descending
+	sort.Slice(houseScores, func(i, j int) bool {
+		return houseScores[i].Score > houseScores[j].Score
+	})
+
+	// Player house scores descending
+	sort.Slice(playerScores, func(i, j int) bool {
+		return playerScores[i].Score > playerScores[j].Score
+	})
+
+	return houseScores, playerScores, nil
 }

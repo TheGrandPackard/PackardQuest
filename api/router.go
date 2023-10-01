@@ -34,9 +34,12 @@ func NewServer(playerManager managers.PlayerManager) {
 		})
 	})
 
+	// player
 	r.GET("api/latest/player/:id", a.getPlayer)
 	r.POST("api/latest/player", a.registerPlayer)
-	// r.PUT("api/latest/player/:id", a.updatePlayer)
+
+	// scoreboard
+	r.GET("api/latest/scoreboard", a.getScoreboard)
 
 	go r.Run(":8000")
 }

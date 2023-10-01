@@ -8,4 +8,6 @@ type PlayerManager interface {
 	GetPlayerByID(playerID int) (*models.Player, error)
 	GetPlayerByWandID(wandID int) (*models.Player, error)
 	CreatePlayer(playerName string, wandID int) (*models.Player, error)
+
+	GetScoreboards() ([]*models.HouseScore, []*models.PlayerScore, error)
 }

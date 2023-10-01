@@ -2,7 +2,7 @@ package models
 
 type HouseScore struct {
 	Name  HogwartsHouse `json:"name"`
-	Score int           `json:"int"`
+	Score int           `json:"score"`
 }
 
 type PlayerScore struct {

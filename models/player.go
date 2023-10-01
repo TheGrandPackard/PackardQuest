@@ -16,14 +16,8 @@ func (p *Player) GetScore() int {
 }
 
 type Progress struct {
-	SortingHat bool
-	Pensieve   bool
+	SortingHat bool `json:"sortingHat"`
+	Pensieve   bool `json:"pensieve"`
 }
 
 type Players []*Player
-
-type PlayerScore struct {
-	Name  string
-	House HogwartsHouse
-	Score int
-}

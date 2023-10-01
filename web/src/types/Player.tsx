@@ -1,5 +1,9 @@
 import { atom } from 'recoil';
 
+export interface PlayerResponse {
+  player: Player;
+}
+
 export interface Player {
   id: number;
   name: string;

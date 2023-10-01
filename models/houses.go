@@ -17,8 +17,3 @@ var (
 		HogwartsHouseSlytherin,
 	}
 )
-
-type HouseScore struct {
-	Name  HogwartsHouse
-	Score int
-}

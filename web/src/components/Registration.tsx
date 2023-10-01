@@ -2,22 +2,15 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useRecoilState } from 'recoil';
-import { Player, PlayerState } from '../types/Player';
-
-interface FormProps {
-    onSubmit?: (data: UserData) => void;
-}
-
-interface PlayerResponse {
-    player: Player;
-}
+import { Player, PlayerResponse, PlayerState } from '../types/Player';
 
 export interface UserData {
     name: string;
+    wandId: number;
 }
 
-const RegistrationFormHogwarts: React.FC<FormProps> = ({ onSubmit }: FormProps) => {
-    const [userData, setUserData] = React.useState<UserData>({ name: '' });
+const Registration: React.FC = () => {
+    const [userData, setUserData] = React.useState<UserData>({ name: '', wandId: 0 });
     const [player, setPlayer] = useRecoilState(PlayerState);
     const navigate = useNavigate();
 
@@ -62,4 +55,4 @@ const RegistrationFormHogwarts: React.FC<FormProps> = ({ onSubmit }: FormProps) 
 }
 
 
-export default RegistrationFormHogwarts;
+export default Registration;

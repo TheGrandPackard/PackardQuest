@@ -9,7 +9,6 @@ import PlayerState from '../types/Player';
 
 const Loading: FC = () => <p>Loading ...</p>;
 
-//const Home = React.lazy(() => import('../pages/Home/Home'));
 const Registration = React.lazy(() => import('./RegistrationFormHogwarts'));
 const Sorting = React.lazy(() => import('./SortingHat'));
 
@@ -17,9 +16,9 @@ const Router: FC = () => {
     const navigate = useNavigate();
     const [player, setPlayer] = useRecoilState(PlayerState);
   
-    // Load token from local storage and ste into recoil state
+    // Load token from local storage and set into recoil state
     const localStorageToken = localStorage.getItem("player");
-    if(localStorageToken) {
+    if(localStorageToken && player === undefined) {
       console.log(localStorageToken);
       setPlayer(JSON.parse(localStorageToken));
     }

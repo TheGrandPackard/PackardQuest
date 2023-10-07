@@ -7,16 +7,25 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/thegrandpackard/PackardQuest/managers"
 )
 
 type api struct {
 	playerManager managers.PlayerManager
+	upgrader      websocket.Upgrader
+	clients       map[int]*websocket.Conn
 }
 
 func NewServer(playerManager managers.PlayerManager) {
 	a := api{
 		playerManager: playerManager,
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin:     func(r *http.Request) bool { return true },
+		},
+		clients: map[int]*websocket.Conn{},
 	}
 
 	r := gin.Default()
@@ -33,6 +42,8 @@ func NewServer(playerManager managers.PlayerManager) {
 			"message": "pong",
 		})
 	})
+
+	r.GET("/ws/player/:id", a.websocketUpgraderPlayer)
 
 	// player
 	r.GET("api/latest/player/:id", a.getPlayer)

@@ -1,13 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRecoilState } from 'recoil';
 import PlayerState from '../../types/Player';
 import Scoreboard from '../Scoreboard/Scoreboard';
 import './Home.css';
 import Header from '../Header/Header';
 import Button from 'react-bootstrap/Button';
+import useWebSocket from 'react-use-websocket';
+
 
 const Home: React.FC = () => {
   const [player] = useRecoilState(PlayerState);
+
+  const { sendJsonMessage, getWebSocket } = useWebSocket('ws://localhost:8000/ws/player/' + player?.id, {
+    onOpen: () => console.log('WebSocket connection opened.'),
+    onClose: () => console.log('WebSocket connection closed.'),
+    shouldReconnect: (closeEvent) => true,
+    onMessage: (event: WebSocketEventMap['message']) => console.log(event),
+    onError: (event: WebSocketEventMap['error']) => console.log(event),
+  });
 
   return <div className="container">
     <Header />

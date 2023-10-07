@@ -1,0 +1,133 @@
+{
+	"info": {
+		"_postman_id": "28534468-ec68-486f-a025-cf6f54396512",
+		"name": "PackardQuest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "245759"
+	},
+	"item": [
+		{
+			"name": "Ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/ping",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register player",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Packard\",\n    \"wandID\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/latest/player",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"latest",
+						"player"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Player",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/latest/player/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"latest",
+						"player",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Player",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 1,\n    \"name\": \"Packard\",\n    \"wandID\": 1,\n    \"house\": \"Ravenclaw\",\n    \"progress\": {\n        \"sortingHat\": true,\n        \"pensieve\": true\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/latest/player/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"latest",
+						"player",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Scoreboard",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/latest/scoreboard",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"latest",
+						"scoreboard"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

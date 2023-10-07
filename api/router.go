@@ -18,7 +18,7 @@ type api struct {
 }
 
 func NewServer(playerManager managers.PlayerManager) {
-	a := api{
+	a := &api{
 		playerManager: playerManager,
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
@@ -53,6 +53,7 @@ func NewServer(playerManager managers.PlayerManager) {
 	// scoreboard
 	r.GET("api/latest/scoreboard", a.getScoreboard)
 
+	playerManager.SetSubscriber(a)
 	go r.Run(":8000")
 }
 

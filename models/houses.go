@@ -17,3 +17,13 @@ var (
 		HogwartsHouseSlytherin,
 	}
 )
+
+func IsValidHouse(house HogwartsHouse) bool {
+	for _, h := range HogwartsHouses {
+		if house == h {
+			return true
+		}
+	}
+
+	return false
+}

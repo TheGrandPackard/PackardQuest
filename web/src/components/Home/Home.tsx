@@ -1,23 +1,42 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useRecoilState } from 'recoil';
-import PlayerState from '../../types/Player';
+import PlayerState, { PlayerResponse } from '../../types/Player';
 import Scoreboard from '../Scoreboard/Scoreboard';
 import './Home.css';
 import Header from '../Header/Header';
 import Button from 'react-bootstrap/Button';
 import useWebSocket from 'react-use-websocket';
+import { WebsocketUpdate } from '../../types/Websocket';
 
 
 const Home: React.FC = () => {
-  const [player] = useRecoilState(PlayerState);
+  const [player, setPlayer] = useRecoilState(PlayerState);
 
-  const { sendJsonMessage, getWebSocket } = useWebSocket('ws://localhost:8000/ws/player/' + player?.id, {
+  const { sendJsonMessage } = useWebSocket('ws://localhost:8000/ws/player/' + player?.id, {
     onOpen: () => console.log('WebSocket connection opened.'),
     onClose: () => console.log('WebSocket connection closed.'),
     shouldReconnect: (closeEvent) => true,
-    onMessage: (event: WebSocketEventMap['message']) => console.log(event),
+    onMessage: (event: WebSocketEventMap['message']) => onMessage(event.data),
     onError: (event: WebSocketEventMap['error']) => console.log(event),
   });
+
+  const onMessage = (data: any) => {
+    console.log('onMessage: ' + data);
+    let updateData = JSON.parse(data) as WebsocketUpdate;
+
+    switch (updateData.type) {
+      case 'playerUpdate':
+        onPlayerUpdate(JSON.parse(data) as PlayerResponse);
+        break;
+      default:
+        console.log('invalid websocket data: ' + data);
+    }
+  }
+
+  const onPlayerUpdate = (data: PlayerResponse) => {
+    setPlayer(data.player);
+    localStorage.setItem("player", JSON.stringify(data.player));
+  }
 
   return <div className="container">
     <Header />

@@ -11,11 +11,18 @@ import (
 )
 
 type playerManager struct {
-	store storers.PlayerStore
+	store      storers.PlayerStore
+	subscriber PlayerManagerSubscriber
 }
 
 func NewPlayerManager(playerStore storers.PlayerStore) (PlayerManager, error) {
-	return &playerManager{store: playerStore}, nil
+	return &playerManager{
+		store: playerStore,
+	}, nil
+}
+
+func (p *playerManager) SetSubscriber(subscriber PlayerManagerSubscriber) {
+	p.subscriber = subscriber
 }
 
 func (p *playerManager) GetPlayers() (models.Players, error) {
@@ -102,6 +109,17 @@ func (p *playerManager) UpdatePlayer(id int, req models.UpdatePlayerRequest) (*m
 		player.Name = *req.Name
 	}
 
+	if req.House != nil {
+		if *req.House == "" {
+			return nil, errors.New("house cannot be empty")
+		}
+		if !models.IsValidHouse(*req.House) {
+			return nil, errors.New("house must be valid")
+		}
+
+		player.House = *req.House
+	}
+
 	if req.WandID != nil {
 		if *req.WandID == 0 {
 			return nil, errors.New("wand id cannot be 0")
@@ -120,7 +138,10 @@ func (p *playerManager) UpdatePlayer(id int, req models.UpdatePlayerRequest) (*m
 		return nil, err
 	}
 
-	// TODO: Hook update player
+	// trigger event to subscribers
+	if p.subscriber != nil {
+		go p.subscriber.OnPlayerUpdate(player)
+	}
 
 	return player, nil
 }

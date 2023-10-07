@@ -18,8 +18,8 @@ export interface PlayerProgress {
 }
 
 export const PlayerState = atom<Player | undefined>({
-    key: 'PlayerState',
-    default: undefined
-  })
+  key: 'PlayerState',
+  default: undefined
+})
 
 export default PlayerState

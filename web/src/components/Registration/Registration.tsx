@@ -10,7 +10,7 @@ export interface UserData {
 }
 
 const Registration: React.FC = () => {
-    const [userData, setUserData] = React.useState<UserData>({ name: '', wandId: 0 });
+    const [userData, setUserData] = React.useState<UserData>({ name: '', wandId: 1 });
     const [formError, setFormError] = React.useState('');
     const [player, setPlayer] = useRecoilState(PlayerState);
     const navigate = useNavigate();

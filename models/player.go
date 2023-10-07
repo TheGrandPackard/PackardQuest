@@ -21,3 +21,9 @@ type Progress struct {
 }
 
 type Players []*Player
+
+type UpdatePlayerRequest struct {
+	Name     *string   `json:"name"`
+	WandID   *int      `json:"wandId"`
+	Progress *Progress `json:"progress"`
+}

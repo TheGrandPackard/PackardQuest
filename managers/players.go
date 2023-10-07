@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"errors"
 	"math"
 	"math/rand"
 	"sort"
@@ -82,6 +83,44 @@ func (p *playerManager) CreatePlayer(playerName string, wandID int) (*models.Pla
 	if err := p.store.CreatePlayer(player); err != nil {
 		return nil, err
 	}
+
+	return player, nil
+}
+
+func (p *playerManager) UpdatePlayer(id int, req models.UpdatePlayerRequest) (*models.Player, error) {
+	// get player
+	player, err := p.GetPlayerByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Name != nil {
+		if *req.Name == "" {
+			return nil, errors.New("name cannot be empty")
+		}
+
+		player.Name = *req.Name
+	}
+
+	if req.WandID != nil {
+		if *req.WandID == 0 {
+			return nil, errors.New("wand id cannot be 0")
+		}
+
+		player.WandID = *req.WandID
+	}
+
+	if req.Progress != nil {
+		player.Progress = *req.Progress
+	}
+
+	// update player
+	err = p.store.UpdatePlayer(player)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Hook update player
 
 	return player, nil
 }

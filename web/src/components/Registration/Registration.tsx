@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useRecoilState } from 'recoil';
-import { Player, PlayerResponse, PlayerState } from '../types/Player';
+import { PlayerResponse, PlayerState } from '../../types/Player';
 
 export interface UserData {
     name: string;
@@ -11,6 +11,7 @@ export interface UserData {
 
 const Registration: React.FC = () => {
     const [userData, setUserData] = React.useState<UserData>({ name: '', wandId: 0 });
+    const [formError, setFormError] = React.useState('');
     const [player, setPlayer] = useRecoilState(PlayerState);
     const navigate = useNavigate();
 
@@ -28,6 +29,12 @@ const Registration: React.FC = () => {
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        if (userData.name === '' || userData.wandId === 0) {
+            setFormError("Invalid name or wand id")
+            return;
+        }
+
         axios
             .post<PlayerResponse>("http://localhost:8000/api/latest/player", userData, {})
             .then(resp => {
@@ -42,14 +49,18 @@ const Registration: React.FC = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label>
-                Name:
-                <input type="text" name="name" value={userData.name} onChange={handleInputChange}></input>
-            </label>
-            <br />
-            <button type="submit">Submit</button>
-        </form>
+        <>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Name:
+                    <input type="text" name="name" value={userData.name} onChange={handleInputChange}></input>
+                </label>
+                <br />
+                {formError !== '' && (<label>{formError}</label>)}
+                <br />
+                <button type="submit">Submit</button>
+            </form>
+        </>
     );
 
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import axios from 'axios';
-import { ScoreboardResponse } from '../types/Scoreboard';
+import { ScoreboardResponse } from '../../types/Scoreboard';
 
 const Scoreboard: React.FC = () => {
   const [scoreboardResponse, setScoreboardResponse] = React.useState<ScoreboardResponse>();

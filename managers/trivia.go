@@ -18,8 +18,16 @@ func NewTriviaQuestionManager(triviaStore storers.TriviaQuestionStore) (TriviaQu
 }
 
 func (t *triviaQuestionManager) GetQuestionForPlayer(playerID int) (*models.TriviaQuestion, error) {
-	// TODO
-	return nil, errors.New("not implemented")
+	triviaQuestions, err := t.store.GetTriviaQuestions()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(triviaQuestions) == 0 {
+		return nil, errors.New("no trivia questions found")
+	}
+
+	return triviaQuestions[0], nil
 }
 
 func (t *triviaQuestionManager) AnswerQuestion(playerID int, answer *models.PlayerAnswer) (bool, error) {

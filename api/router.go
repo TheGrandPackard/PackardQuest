@@ -12,14 +12,17 @@ import (
 )
 
 type api struct {
-	playerManager managers.PlayerManager
-	upgrader      websocket.Upgrader
-	clients       map[int]*websocket.Conn
+	playerManager         managers.PlayerManager
+	triviaQuestionManager managers.TriviaQuestionManager
+
+	upgrader websocket.Upgrader
+	clients  map[int]*websocket.Conn
 }
 
-func NewServer(playerManager managers.PlayerManager) {
+func NewServer(playerManager managers.PlayerManager, triviaQuestionmanager managers.TriviaQuestionManager) {
 	a := &api{
-		playerManager: playerManager,
+		playerManager:         playerManager,
+		triviaQuestionManager: triviaQuestionmanager,
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -43,15 +46,21 @@ func NewServer(playerManager managers.PlayerManager) {
 		})
 	})
 
-	r.GET("/ws/player/:id", a.websocketUpgraderPlayer)
+	r.GET("ws/player/:id", a.websocketUpgraderPlayer)
+
+	apiLatest := r.Group("api/latest")
 
 	// player
-	r.GET("api/latest/player/:id", a.getPlayer)
-	r.POST("api/latest/player", a.registerPlayer)
-	r.PUT("api/latest/player/:id", a.updatePlayer)
+	apiLatest.GET("player/:id", a.getPlayer)
+	apiLatest.POST("player", a.registerPlayer)
+	apiLatest.PUT("player/:id", a.updatePlayer)
+
+	// trivia
+	apiLatest.GET("trivia/player/:id", a.getPlayerTriviaQuestion)
+	apiLatest.POST("trivia/player/:id", a.answerTriviaQuestion)
 
 	// scoreboard
-	r.GET("api/latest/scoreboard", a.getScoreboard)
+	apiLatest.GET("scoreboard", a.getScoreboard)
 
 	playerManager.SetSubscriber(a)
 	go r.Run(":8000")

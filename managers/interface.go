@@ -18,3 +18,8 @@ type PlayerManager interface {
 type PlayerManagerSubscriber interface {
 	OnPlayerUpdate(*models.Player)
 }
+
+type TriviaQuestionManager interface {
+	GetQuestionForPlayer(playerID int) (*models.TriviaQuestion, error)
+	AnswerQuestion(playerID int, answer *models.PlayerAnswer) (bool, error)
+}

@@ -2,27 +2,30 @@ package storers
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 	"sync"
 
 	"github.com/thegrandpackard/PackardQuest/models"
 )
 
-type fileStore struct {
+type playerFileStore struct {
 	fileName string
 	mutex    sync.RWMutex
 }
 
-func NewFileStore(fileName string) (PlayerStore, error) {
+func NewPlayerFileStore(fileName string) (PlayerStore, error) {
 	// Test opening the file, or create it
 	f, err := os.OpenFile(fileName, os.O_CREATE, 0644)
+	if err != nil {
+		return nil, err
+	}
 	defer f.Close()
 
-	return &fileStore{fileName: fileName}, err
+	return &playerFileStore{fileName: fileName}, err
 }
 
-func (s *fileStore) readPlayersFile() (models.Players, error) {
+func (s *playerFileStore) readPlayersFile() (models.Players, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
@@ -32,7 +35,7 @@ func (s *fileStore) readPlayersFile() (models.Players, error) {
 	}
 	defer playersFile.Close()
 
-	playersBytes, err := ioutil.ReadAll(playersFile)
+	playersBytes, err := io.ReadAll(playersFile)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +54,7 @@ func (s *fileStore) readPlayersFile() (models.Players, error) {
 	return players, err
 }
 
-func (s *fileStore) writePlayersFile(players models.Players) error {
+func (s *playerFileStore) writePlayersFile(players models.Players) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -60,10 +63,10 @@ func (s *fileStore) writePlayersFile(players models.Players) error {
 		return err
 	}
 
-	return ioutil.WriteFile(s.fileName, playersBytes, 0)
+	return os.WriteFile(s.fileName, playersBytes, 0)
 }
 
-func (s *fileStore) getNextPlayerID() (int, error) {
+func (s *playerFileStore) getNextPlayerID() (int, error) {
 	maxId := 0
 
 	players, err := s.readPlayersFile()
@@ -80,7 +83,7 @@ func (s *fileStore) getNextPlayerID() (int, error) {
 	return maxId + 1, nil
 }
 
-func (s *fileStore) CreatePlayer(player *models.Player) error {
+func (s *playerFileStore) CreatePlayer(player *models.Player) error {
 	// TODO: This sucks. Use UUIDs instead
 	nextId, err := s.getNextPlayerID()
 	if err != nil {
@@ -104,11 +107,11 @@ func (s *fileStore) CreatePlayer(player *models.Player) error {
 	return s.writePlayersFile(players)
 }
 
-func (s *fileStore) GetPlayers() (models.Players, error) {
+func (s *playerFileStore) GetPlayers() (models.Players, error) {
 	return s.readPlayersFile()
 }
 
-func (s *fileStore) GetPlayerByID(playerID int) (*models.Player, error) {
+func (s *playerFileStore) GetPlayerByID(playerID int) (*models.Player, error) {
 	players, err := s.readPlayersFile()
 	if err != nil {
 		return nil, err
@@ -120,10 +123,10 @@ func (s *fileStore) GetPlayerByID(playerID int) (*models.Player, error) {
 		}
 	}
 
-	return nil, nil
+	return nil, errPlayerNotExists
 }
 
-func (s *fileStore) GetPlayerByName(playerName string) (*models.Player, error) {
+func (s *playerFileStore) GetPlayerByName(playerName string) (*models.Player, error) {
 	players, err := s.readPlayersFile()
 	if err != nil {
 		return nil, err
@@ -135,10 +138,10 @@ func (s *fileStore) GetPlayerByName(playerName string) (*models.Player, error) {
 		}
 	}
 
-	return nil, nil
+	return nil, errPlayerNotExists
 }
 
-func (s *fileStore) GetPlayerByWandID(wandID int) (*models.Player, error) {
+func (s *playerFileStore) GetPlayerByWandID(wandID int) (*models.Player, error) {
 	players, err := s.readPlayersFile()
 	if err != nil {
 		return nil, err
@@ -150,10 +153,10 @@ func (s *fileStore) GetPlayerByWandID(wandID int) (*models.Player, error) {
 		}
 	}
 
-	return nil, nil
+	return nil, errPlayerNotExists
 }
 
-func (s *fileStore) UpdatePlayer(player *models.Player) error {
+func (s *playerFileStore) UpdatePlayer(player *models.Player) error {
 	players, err := s.readPlayersFile()
 	if err != nil {
 		return err
@@ -170,7 +173,7 @@ func (s *fileStore) UpdatePlayer(player *models.Player) error {
 	return errPlayerNotExists
 }
 
-func (s *fileStore) DeletePlayer(playerID int) error {
+func (s *playerFileStore) DeletePlayer(playerID int) error {
 	players, err := s.readPlayersFile()
 	if err != nil {
 		return err

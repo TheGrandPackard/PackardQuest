@@ -109,6 +109,61 @@
 			"response": []
 		},
 		{
+			"name": "Get Trivia Question",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/latest/trivia/player/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"latest",
+						"trivia",
+						"player",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Submit Trivia Question Answer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"questionId\": 1,\n\t\"answer\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/latest/trivia/player/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"latest",
+						"trivia",
+						"player",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Scoreboard",
 			"request": {
 				"method": "GET",

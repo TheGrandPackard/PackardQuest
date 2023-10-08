@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -33,7 +32,7 @@ func NewClient(apiKey string) (IFTTT, error) {
 }
 
 func extractErrorMessages(resp *http.Response) string {
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err.Error()
 	}

@@ -35,8 +35,7 @@ type registerPlayerRequest struct {
 
 func (a *api) registerPlayer(c *gin.Context) {
 	req := registerPlayerRequest{}
-	err := c.BindJSON(&req)
-	if err != nil {
+	if err := c.BindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, newApiError(err))
 		return
 	}
@@ -58,8 +57,7 @@ func (a *api) updatePlayer(c *gin.Context) {
 	}
 
 	req := models.UpdatePlayerRequest{}
-	err = c.BindJSON(&req)
-	if err != nil {
+	if err := c.BindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, newApiError(err))
 		return
 	}

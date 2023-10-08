@@ -33,7 +33,7 @@ func init() {
 	var err error
 
 	// Initialize Player Store
-	playerStore, err = storers.NewFileStore(*playersFile)
+	playerStore, err = storers.NewPlayerFileStore(*playersFile)
 	if err != nil {
 		log.Fatal(err)
 	}

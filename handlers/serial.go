@@ -10,19 +10,19 @@ import (
 	"time"
 
 	"github.com/thegrandpackard/PackardQuest/ifttt"
-	"github.com/thegrandpackard/PackardQuest/managers"
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 	"go.bug.st/serial"
 )
 
 type serialHandler struct {
 	port               serial.Port
-	playerManager      managers.PlayerManager
+	playerManager      interfaces.PlayerManager
 	iftttClient        ifttt.IFTTT
 	handleTimeout      bool
 	interactionTimeout time.Duration
 }
 
-func NewSerialHandler(port serial.Port, playerManager managers.PlayerManager, iftttClient ifttt.IFTTT) (SerialHandler, error) {
+func NewSerialHandler(port serial.Port, playerManager interfaces.PlayerManager, iftttClient ifttt.IFTTT) (interfaces.SerialHandler, error) {
 	return &serialHandler{
 		port:               port,
 		playerManager:      playerManager,

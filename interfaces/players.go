@@ -1,4 +1,4 @@
-package managers
+package interfaces
 
 import "github.com/thegrandpackard/PackardQuest/models"
 
@@ -11,15 +11,8 @@ type PlayerManager interface {
 	GetPlayerByWandID(wandID int) (*models.Player, error)
 	CreatePlayer(playerName string, wandID int) (*models.Player, error)
 	UpdatePlayer(id int, req models.UpdatePlayerRequest) (*models.Player, error)
-
-	GetScoreboards() ([]*models.HouseScore, []*models.PlayerScore, error)
 }
 
 type PlayerManagerSubscriber interface {
 	OnPlayerUpdate(*models.Player)
-}
-
-type TriviaQuestionManager interface {
-	GetQuestionForPlayer(playerID int) (*models.TriviaQuestion, error)
-	AnswerQuestion(playerID int, answer *models.PlayerAnswer) (bool, error)
 }

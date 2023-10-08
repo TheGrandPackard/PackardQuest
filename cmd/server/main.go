@@ -44,12 +44,18 @@ func main() {
 	}
 
 	// Initialize Player Manager
-	triviaQuestionManager, err := managers.NewTriviaQuestionManager(triviaQuestionStore)
+	triviaQuestionManager, err := managers.NewTriviaQuestionManager(triviaQuestionStore, playerManager)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	api.NewServer(playerManager, triviaQuestionManager)
+	// Initialize Scoreboard Manager
+	scoreboardManager, err := managers.NewScoreboardManager(playerManager, triviaQuestionManager)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	api.NewServer(playerManager, triviaQuestionManager, scoreboardManager)
 	log.Printf("API Started")
 
 	// Capture Ctrl-c to shut down bot

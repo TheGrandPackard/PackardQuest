@@ -4,24 +4,24 @@ import (
 	"errors"
 	"math"
 	"math/rand"
-	"sort"
 
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 	"github.com/thegrandpackard/PackardQuest/models"
 	"github.com/thegrandpackard/PackardQuest/storers"
 )
 
 type playerManager struct {
 	store      storers.PlayerStore
-	subscriber PlayerManagerSubscriber
+	subscriber interfaces.PlayerManagerSubscriber
 }
 
-func NewPlayerManager(playerStore storers.PlayerStore) (PlayerManager, error) {
+func NewPlayerManager(playerStore storers.PlayerStore) (interfaces.PlayerManager, error) {
 	return &playerManager{
 		store: playerStore,
 	}, nil
 }
 
-func (p *playerManager) SetSubscriber(subscriber PlayerManagerSubscriber) {
+func (p *playerManager) SetSubscriber(subscriber interfaces.PlayerManagerSubscriber) {
 	p.subscriber = subscriber
 }
 
@@ -132,6 +132,16 @@ func (p *playerManager) UpdatePlayer(id int, req models.UpdatePlayerRequest) (*m
 		player.Progress = *req.Progress
 	}
 
+	if req.TriviaAnswers != nil {
+		if player.TriviaAnswers == nil {
+			player.TriviaAnswers = map[int]bool{}
+		}
+
+		for id, answer := range req.TriviaAnswers {
+			player.TriviaAnswers[id] = answer
+		}
+	}
+
 	// update player
 	err = p.store.UpdatePlayer(player)
 	if err != nil {
@@ -144,51 +154,4 @@ func (p *playerManager) UpdatePlayer(id int, req models.UpdatePlayerRequest) (*m
 	}
 
 	return player, nil
-}
-
-func (p *playerManager) GetScoreboards() ([]*models.HouseScore, []*models.PlayerScore, error) {
-	// Get all players
-	players, err := p.store.GetPlayers()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// Get house and player scores
-	houseScores := []*models.HouseScore{}
-	playerScores := []*models.PlayerScore{}
-
-	houseScoreMap := map[models.HogwartsHouse]int{}
-	for _, house := range models.HogwartsHouses {
-		houseScoreMap[house] = 0
-	}
-	for _, player := range players {
-		score := player.GetScore()
-		playerScores = append(playerScores, &models.PlayerScore{
-			Name:  player.Name,
-			House: player.House,
-			Score: score,
-		})
-
-		houseScoreMap[player.House] += score
-	}
-
-	// Flatten house score map
-	for house, score := range houseScoreMap {
-		houseScores = append(houseScores, &models.HouseScore{
-			Name:  house,
-			Score: score,
-		})
-	}
-
-	// Sort house scores descending
-	sort.Slice(houseScores, func(i, j int) bool {
-		return houseScores[i].Score > houseScores[j].Score
-	})
-
-	// Player house scores descending
-	sort.Slice(playerScores, func(i, j int) bool {
-		return playerScores[i].Score > playerScores[j].Score
-	})
-
-	return houseScores, playerScores, nil
 }

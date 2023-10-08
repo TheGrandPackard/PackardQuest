@@ -3,18 +3,28 @@ package managers
 import (
 	"errors"
 
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 	"github.com/thegrandpackard/PackardQuest/models"
 	"github.com/thegrandpackard/PackardQuest/storers"
 )
 
 type triviaQuestionManager struct {
-	store storers.TriviaQuestionStore
+	store         storers.TriviaQuestionStore
+	playerManager interfaces.PlayerManager
 }
 
-func NewTriviaQuestionManager(triviaStore storers.TriviaQuestionStore) (TriviaQuestionManager, error) {
+func NewTriviaQuestionManager(
+	triviaStore storers.TriviaQuestionStore,
+	playerManager interfaces.PlayerManager,
+) (interfaces.TriviaQuestionManager, error) {
 	return &triviaQuestionManager{
-		store: triviaStore,
+		store:         triviaStore,
+		playerManager: playerManager,
 	}, nil
+}
+
+func (t *triviaQuestionManager) GetQuestions() (models.TriviaQuestions, error) {
+	return t.store.GetTriviaQuestions()
 }
 
 func (t *triviaQuestionManager) GetQuestionForPlayer(playerID int) (*models.TriviaQuestion, error) {
@@ -31,6 +41,21 @@ func (t *triviaQuestionManager) GetQuestionForPlayer(playerID int) (*models.Triv
 }
 
 func (t *triviaQuestionManager) AnswerQuestion(playerID int, answer *models.PlayerAnswer) (bool, error) {
-	// TODO
-	return false, errors.New("not implemented")
+	// get trivia question
+	triviaQuestion, err := t.store.GetTriviaQuestionByID(answer.QuestionID)
+	if err != nil {
+		return false, err
+	}
+
+	// check answer
+	correct := answer.Answer == triviaQuestion.CorrectAnswer
+
+	// update player
+	if _, err := t.playerManager.UpdatePlayer(playerID, models.UpdatePlayerRequest{
+		TriviaAnswers: map[int]bool{answer.Answer: correct},
+	}); err != nil {
+		return false, err
+	}
+
+	return correct, nil
 }

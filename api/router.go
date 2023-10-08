@@ -8,21 +8,28 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/thegrandpackard/PackardQuest/managers"
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 )
 
 type api struct {
-	playerManager         managers.PlayerManager
-	triviaQuestionManager managers.TriviaQuestionManager
+	playerManager         interfaces.PlayerManager
+	triviaQuestionManager interfaces.TriviaQuestionManager
+	scorebaordManager     interfaces.ScoreboardManager
 
 	upgrader websocket.Upgrader
 	clients  map[int]*websocket.Conn
 }
 
-func NewServer(playerManager managers.PlayerManager, triviaQuestionmanager managers.TriviaQuestionManager) {
+func NewServer(
+	playerManager interfaces.PlayerManager,
+	triviaQuestionmanager interfaces.TriviaQuestionManager,
+	scoreboardManager interfaces.ScoreboardManager,
+) {
 	a := &api{
 		playerManager:         playerManager,
 		triviaQuestionManager: triviaQuestionmanager,
+		scorebaordManager:     scoreboardManager,
+
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,

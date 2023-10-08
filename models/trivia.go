@@ -1,10 +1,11 @@
 package models
 
 type TriviaQuestion struct {
-	ID        int            `json:"id"`
-	Prompt    string         `json:"prompt"`
-	Answers   []TriviaAnswer `json:"answers"`
-	AudioFile string         `json:"audioFile"`
+	ID            int            `json:"id"`
+	Prompt        string         `json:"prompt"`
+	Answers       []TriviaAnswer `json:"answers"`
+	CorrectAnswer int            `json:"correctAnswer"`
+	AudioFile     string         `json:"audioFile"`
 }
 
 type TriviaQuestions []*TriviaQuestion

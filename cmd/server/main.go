@@ -15,19 +15,18 @@ import (
 
 var (
 	// Config
-	playersFile *string
+	playersFile         = flag.String("players-file", "players.json", "file database with players")
+	triviaQuestionsFile = flag.String("trivia-questions-file", "triviaQuestions.json", "file database with trivia questions")
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-
-	playersFile = flag.String("players-file", "players.json", "file database with players")
 	flag.Parse()
 }
 
 func main() {
 	// Initialize Player Store
-	playerStore, err := storers.NewFileStore(*playersFile)
+	playerStore, err := storers.NewPlayerFileStore(*playersFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,7 +37,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	api.NewServer(playerManager)
+	// Initialize Trivia Question Store
+	triviaQuestionStore, err := storers.NewTriviaQuestionFileStore(*triviaQuestionsFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Initialize Player Manager
+	triviaQuestionManager, err := managers.NewTriviaQuestionManager(triviaQuestionStore, playerManager)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Initialize Scoreboard Manager
+	scoreboardManager, err := managers.NewScoreboardManager(playerManager, triviaQuestionManager)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	api.NewServer(playerManager, triviaQuestionManager, scoreboardManager)
 	log.Printf("API Started")
 
 	// Capture Ctrl-c to shut down bot

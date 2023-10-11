@@ -13,7 +13,7 @@ type scoreboardResponse struct {
 }
 
 func (a *api) getScoreboard(c *gin.Context) {
-	houses, players, err := a.playerManager.GetScoreboards()
+	houses, players, err := a.scorebaordManager.GetScoreboards()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, newApiError(err))
 		return

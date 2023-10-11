@@ -7,16 +7,35 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/thegrandpackard/PackardQuest/managers"
+	"github.com/gorilla/websocket"
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 )
 
 type api struct {
-	playerManager managers.PlayerManager
+	playerManager         interfaces.PlayerManager
+	triviaQuestionManager interfaces.TriviaQuestionManager
+	scorebaordManager     interfaces.ScoreboardManager
+
+	upgrader websocket.Upgrader
+	clients  map[int]*websocket.Conn
 }
 
-func NewServer(playerManager managers.PlayerManager) {
-	a := api{
-		playerManager: playerManager,
+func NewServer(
+	playerManager interfaces.PlayerManager,
+	triviaQuestionmanager interfaces.TriviaQuestionManager,
+	scoreboardManager interfaces.ScoreboardManager,
+) {
+	a := &api{
+		playerManager:         playerManager,
+		triviaQuestionManager: triviaQuestionmanager,
+		scorebaordManager:     scoreboardManager,
+
+		upgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin:     func(r *http.Request) bool { return true },
+		},
+		clients: map[int]*websocket.Conn{},
 	}
 
 	r := gin.Default()
@@ -34,13 +53,23 @@ func NewServer(playerManager managers.PlayerManager) {
 		})
 	})
 
+	r.GET("ws/player/:id", a.websocketUpgraderPlayer)
+
+	apiLatest := r.Group("api/latest")
+
 	// player
-	r.GET("api/latest/player/:id", a.getPlayer)
-	r.POST("api/latest/player", a.registerPlayer)
+	apiLatest.GET("player/:id", a.getPlayer)
+	apiLatest.POST("player", a.registerPlayer)
+	apiLatest.PUT("player/:id", a.updatePlayer)
+
+	// trivia
+	apiLatest.GET("trivia/player/:id", a.getPlayerTriviaQuestion)
+	apiLatest.POST("trivia/player/:id", a.answerTriviaQuestion)
 
 	// scoreboard
-	r.GET("api/latest/scoreboard", a.getScoreboard)
+	apiLatest.GET("scoreboard", a.getScoreboard)
 
+	playerManager.SetSubscriber(a)
 	go r.Run(":8000")
 }
 

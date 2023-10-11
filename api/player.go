@@ -35,13 +35,34 @@ type registerPlayerRequest struct {
 
 func (a *api) registerPlayer(c *gin.Context) {
 	req := registerPlayerRequest{}
-	err := c.BindJSON(&req)
-	if err != nil {
+	if err := c.BindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, newApiError(err))
 		return
 	}
 
 	resp, err := a.playerManager.CreatePlayer(req.Name, req.WandID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, newApiError(err))
+		return
+	}
+
+	c.JSON(http.StatusCreated, playerResponse{Player: resp})
+}
+
+func (a *api) updatePlayer(c *gin.Context) {
+	id, err := getIntParam(c, "id")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, newApiError(err))
+		return
+	}
+
+	req := models.UpdatePlayerRequest{}
+	if err := c.BindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, newApiError(err))
+		return
+	}
+
+	resp, err := a.playerManager.UpdatePlayer(id, req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, newApiError(err))
 		return

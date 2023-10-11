@@ -6,6 +6,7 @@ import (
 
 	"github.com/thegrandpackard/PackardQuest/handlers"
 	"github.com/thegrandpackard/PackardQuest/ifttt"
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 	"github.com/thegrandpackard/PackardQuest/managers"
 	"github.com/thegrandpackard/PackardQuest/storers"
 	"go.bug.st/serial"
@@ -13,9 +14,9 @@ import (
 
 var (
 	playerStore   storers.PlayerStore
-	playerManager managers.PlayerManager
+	playerManager interfaces.PlayerManager
 	port          serial.Port
-	serialHandler handlers.SerialHandler
+	serialHandler interfaces.SerialHandler
 	iftttClient   ifttt.IFTTT
 
 	// Config
@@ -33,7 +34,7 @@ func init() {
 	var err error
 
 	// Initialize Player Store
-	playerStore, err = storers.NewFileStore(*playersFile)
+	playerStore, err = storers.NewPlayerFileStore(*playersFile)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,20 +1,28 @@
 package managers
 
 import (
+	"errors"
 	"math"
 	"math/rand"
-	"sort"
 
+	"github.com/thegrandpackard/PackardQuest/interfaces"
 	"github.com/thegrandpackard/PackardQuest/models"
 	"github.com/thegrandpackard/PackardQuest/storers"
 )
 
 type playerManager struct {
-	store storers.PlayerStore
+	store      storers.PlayerStore
+	subscriber interfaces.PlayerManagerSubscriber
 }
 
-func NewPlayerManager(playerStore storers.PlayerStore) (PlayerManager, error) {
-	return &playerManager{store: playerStore}, nil
+func NewPlayerManager(playerStore storers.PlayerStore) (interfaces.PlayerManager, error) {
+	return &playerManager{
+		store: playerStore,
+	}, nil
+}
+
+func (p *playerManager) SetSubscriber(subscriber interfaces.PlayerManagerSubscriber) {
+	p.subscriber = subscriber
 }
 
 func (p *playerManager) GetPlayers() (models.Players, error) {
@@ -86,49 +94,64 @@ func (p *playerManager) CreatePlayer(playerName string, wandID int) (*models.Pla
 	return player, nil
 }
 
-func (p *playerManager) GetScoreboards() ([]*models.HouseScore, []*models.PlayerScore, error) {
-	// Get all players
-	players, err := p.store.GetPlayers()
+func (p *playerManager) UpdatePlayer(id int, req models.UpdatePlayerRequest) (*models.Player, error) {
+	// get player
+	player, err := p.GetPlayerByID(id)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	// Get house and player scores
-	houseScores := []*models.HouseScore{}
-	playerScores := []*models.PlayerScore{}
+	if req.Name != nil {
+		if *req.Name == "" {
+			return nil, errors.New("name cannot be empty")
+		}
 
-	houseScoreMap := map[models.HogwartsHouse]int{}
-	for _, house := range models.HogwartsHouses {
-		houseScoreMap[house] = 0
-	}
-	for _, player := range players {
-		score := player.GetScore()
-		playerScores = append(playerScores, &models.PlayerScore{
-			Name:  player.Name,
-			House: player.House,
-			Score: score,
-		})
-
-		houseScoreMap[player.House] += score
+		player.Name = *req.Name
 	}
 
-	// Flatten house score map
-	for house, score := range houseScoreMap {
-		houseScores = append(houseScores, &models.HouseScore{
-			Name:  house,
-			Score: score,
-		})
+	if req.House != nil {
+		if *req.House == "" {
+			return nil, errors.New("house cannot be empty")
+		}
+		if !models.IsValidHouse(*req.House) {
+			return nil, errors.New("house must be valid")
+		}
+
+		player.House = *req.House
 	}
 
-	// Sort house scores descending
-	sort.Slice(houseScores, func(i, j int) bool {
-		return houseScores[i].Score > houseScores[j].Score
-	})
+	if req.WandID != nil {
+		if *req.WandID == 0 {
+			return nil, errors.New("wand id cannot be 0")
+		}
 
-	// Player house scores descending
-	sort.Slice(playerScores, func(i, j int) bool {
-		return playerScores[i].Score > playerScores[j].Score
-	})
+		player.WandID = *req.WandID
+	}
 
-	return houseScores, playerScores, nil
+	if req.Progress != nil {
+		player.Progress = *req.Progress
+	}
+
+	if req.TriviaAnswers != nil {
+		if player.TriviaAnswers == nil {
+			player.TriviaAnswers = map[int]bool{}
+		}
+
+		for id, answer := range req.TriviaAnswers {
+			player.TriviaAnswers[id] = answer
+		}
+	}
+
+	// update player
+	err = p.store.UpdatePlayer(player)
+	if err != nil {
+		return nil, err
+	}
+
+	// trigger event to subscribers
+	if p.subscriber != nil {
+		go p.subscriber.OnPlayerUpdate(player)
+	}
+
+	return player, nil
 }

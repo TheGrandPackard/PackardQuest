@@ -9,7 +9,8 @@ import (
 )
 
 func createTestPlayersFile(t *testing.T, filename string) PlayerStore {
-	s, err := NewFileStore(filename)
+	s, err := NewPlayerFileStore(filename)
+	assert.NoError(t, err)
 
 	players := []*models.Player{
 		{
@@ -44,15 +45,13 @@ func TestCreatePlayer(t *testing.T) {
 	tests := []test{
 		{
 			player: &models.Player{
-				ID:     1,
 				Name:   "Player 1",
 				WandID: 1001,
 			},
-			err: errPlayerExists,
+			err: nil,
 		},
 		{
 			player: &models.Player{
-				ID:     3,
 				Name:   "Player Three",
 				WandID: 1003,
 			},
@@ -101,7 +100,7 @@ func TestGetPlayerByID(t *testing.T) {
 		{
 			id:     0,
 			exists: false,
-			err:    nil,
+			err:    errPlayerNotExists,
 		},
 	}
 
@@ -131,7 +130,7 @@ func TestGetPlayerByName(t *testing.T) {
 		{
 			name:   "Nonexistant User",
 			exists: false,
-			err:    nil,
+			err:    errPlayerNotExists,
 		},
 	}
 
@@ -161,7 +160,7 @@ func TestGetPlayerByWandID(t *testing.T) {
 		{
 			wandID: 0,
 			exists: false,
-			err:    nil,
+			err:    errPlayerNotExists,
 		},
 	}
 
@@ -244,7 +243,7 @@ func TestDeletePlayer(t *testing.T) {
 		if tc.err == nil {
 			// Get deleted player
 			player, err := s.GetPlayerByID(tc.id)
-			assert.NoError(t, err)
+			assert.Equal(t, err, errPlayerNotExists)
 			assert.Nil(t, player)
 		}
 	}

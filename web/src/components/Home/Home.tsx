@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { useRecoilState } from "recoil";
 import PlayerState, { PlayerResponse } from "../../types/Player";
 import Scoreboard from "../Scoreboard/Scoreboard";
@@ -10,7 +10,7 @@ import { WebsocketUpdate } from "../../types/Websocket";
 const Home: React.FC = () => {
   const [player, setPlayer] = useRecoilState(PlayerState);
 
-  const { sendJsonMessage } = useWebSocket("ws://localhost:8000/ws/player/" + player?.id, {
+  useWebSocket("ws://localhost:8000/ws/player/" + player?.id, {
     onOpen: () => console.log("WebSocket connection opened."),
     onClose: () => console.log("WebSocket connection closed."),
     shouldReconnect: (closeEvent) => true,

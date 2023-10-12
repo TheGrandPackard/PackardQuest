@@ -59,7 +59,7 @@ func NewServer(
 
 	// player
 	apiLatest.GET("player/:id", a.getPlayerByID)
-	apiLatest.GET("player/wand/:id", a.getPlayerByWandID)
+	apiLatest.GET("player/wand/:wandID", a.getPlayerByWandID)
 	apiLatest.POST("player", a.registerPlayer)
 	apiLatest.PUT("player/:id", a.updatePlayer)
 

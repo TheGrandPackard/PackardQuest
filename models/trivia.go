@@ -20,3 +20,11 @@ type PlayerAnswer struct {
 	QuestionID int `json:"questionId"`
 	Answer     int `json:"answer"`
 }
+
+type TriviaQuestionResponse struct {
+	Question *TriviaQuestion `json:"question"`
+}
+
+type TriviaAnswerResponse struct {
+	Correct bool `json:"correct"`
+}

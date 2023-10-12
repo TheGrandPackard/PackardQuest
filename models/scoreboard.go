@@ -10,3 +10,8 @@ type PlayerScore struct {
 	House HogwartsHouse `json:"house"`
 	Score int           `json:"score"`
 }
+
+type ScoreboardResponse struct {
+	Houses  []*HouseScore  `json:"houses"`
+	Players []*PlayerScore `json:"players"`
+}

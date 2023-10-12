@@ -7,11 +7,6 @@ import (
 	"github.com/thegrandpackard/PackardQuest/models"
 )
 
-type scoreboardResponse struct {
-	Houses  []*models.HouseScore  `json:"houses"`
-	Players []*models.PlayerScore `json:"players"`
-}
-
 func (a *api) getScoreboard(c *gin.Context) {
 	houses, players, err := a.scorebaordManager.GetScoreboards()
 	if err != nil {
@@ -19,7 +14,7 @@ func (a *api) getScoreboard(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, scoreboardResponse{
+	c.JSON(http.StatusOK, models.ScoreboardResponse{
 		Houses:  houses,
 		Players: players,
 	})

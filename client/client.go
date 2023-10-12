@@ -10,7 +10,8 @@ import (
 )
 
 type Client interface {
-	GetPlayer(id int) (*models.Player, error)
+	GetPlayerByID(id int) (*models.Player, error)
+	GetPlayerByWandID(wandID int) (*models.Player, error)
 }
 
 type client struct {
@@ -27,7 +28,7 @@ func NewClient(host string) Client {
 	}
 }
 
-func (c *client) GetPlayer(id int) (*models.Player, error) {
+func (c *client) GetPlayerByID(id int) (*models.Player, error) {
 	resp, err := c.httpClient.Get(fmt.Sprintf("%s/api/%s/player/%d", c.host, c.apiVersion, id))
 	if err != nil {
 		return nil, err
@@ -39,11 +40,32 @@ func (c *client) GetPlayer(id int) (*models.Player, error) {
 		return nil, err
 	}
 
-	player := &models.Player{}
-	err = json.Unmarshal(bodyBytes, &player)
+	playerResponse := &models.PlayerResponse{}
+	err = json.Unmarshal(bodyBytes, &playerResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	return player, nil
+	return playerResponse.Player, nil
+}
+
+func (c *client) GetPlayerByWandID(wandID int) (*models.Player, error) {
+	resp, err := c.httpClient.Get(fmt.Sprintf("%s/api/%s/player/wand/%d", c.host, c.apiVersion, wandID))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	playerResponse := &models.PlayerResponse{}
+	err = json.Unmarshal(bodyBytes, &playerResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return playerResponse.Player, nil
 }

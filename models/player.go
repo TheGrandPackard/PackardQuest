@@ -29,6 +29,14 @@ type Progress struct {
 
 type Players []*Player
 
+type PlayerResponse struct {
+	Player *Player `json:"player"`
+}
+type RegisterPlayerRequest struct {
+	Name   string `json:"name"`
+	WandID int    `json:"wandId"`
+}
+
 type UpdatePlayerRequest struct {
 	Name          *string        `json:"name"`
 	House         *HogwartsHouse `json:"house"`

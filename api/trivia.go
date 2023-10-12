@@ -7,10 +7,6 @@ import (
 	"github.com/thegrandpackard/PackardQuest/models"
 )
 
-type triviaQuestionResponse struct {
-	Question *models.TriviaQuestion `json:"question"`
-}
-
 func (a *api) getPlayerTriviaQuestion(c *gin.Context) {
 	id, err := getIntParam(c, "id")
 	if err != nil {
@@ -24,11 +20,7 @@ func (a *api) getPlayerTriviaQuestion(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, triviaQuestionResponse{Question: resp})
-}
-
-type triviaAnswerResponse struct {
-	Correct bool `json:"correct"`
+	c.JSON(http.StatusOK, models.TriviaQuestionResponse{Question: resp})
 }
 
 func (a *api) answerTriviaQuestion(c *gin.Context) {
@@ -51,5 +43,5 @@ func (a *api) answerTriviaQuestion(c *gin.Context) {
 	}
 	// TODO: 404 if player not found
 
-	c.JSON(http.StatusOK, triviaAnswerResponse{Correct: resp})
+	c.JSON(http.StatusOK, models.TriviaAnswerResponse{Correct: resp})
 }

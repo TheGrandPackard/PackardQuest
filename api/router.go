@@ -58,7 +58,8 @@ func NewServer(
 	apiLatest := r.Group("api/latest")
 
 	// player
-	apiLatest.GET("player/:id", a.getPlayer)
+	apiLatest.GET("player/:id", a.getPlayerByID)
+	apiLatest.GET("player/wand/:id", a.getPlayerByWandID)
 	apiLatest.POST("player", a.registerPlayer)
 	apiLatest.PUT("player/:id", a.updatePlayer)
 

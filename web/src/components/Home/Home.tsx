@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRecoilState } from "recoil";
 import PlayerState, { PlayerResponse } from "../../types/Player";
 import Scoreboard from "../Scoreboard/Scoreboard";
@@ -6,9 +6,17 @@ import "./Home.css";
 import Header from "../Header/Header";
 import useWebSocket from "react-use-websocket";
 import { WebsocketUpdate } from "../../types/Websocket";
+import Button from "react-bootstrap/Button";
+import PlayerInfoModal from "../PlayerInfoModal/PlayerInfoModal";
 
 const Home: React.FC = () => {
   const [player, setPlayer] = useRecoilState(PlayerState);
+  const [show, setShow] = useState(false);
+
+  const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
+  const handleUpdateWandId = () => setShow(false);
+  const handleResetPlayer = () => setShow(false);
 
   useWebSocket("ws://localhost:8000/ws/player/" + player?.id, {
     onOpen: () => console.log("WebSocket connection opened."),
@@ -59,6 +67,17 @@ const Home: React.FC = () => {
   return (
     <div className="container">
       <Header />
+      <Button variant="primary" onClick={handleShow}>
+        Open Player Profile Modal
+      </Button>
+
+      <PlayerInfoModal
+        player={player!}
+        show={show}
+        handleClose={handleClose}
+        handleUpdateWandId={handleUpdateWandId}
+        handleResetPlayer={handleResetPlayer}
+      />
       {renderBody()}
     </div>
   );

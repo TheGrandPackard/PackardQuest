@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "api": "(cd cmd/server && go run main.go)",
-    "web": "(cd web && npm i && npm run start)"
+    "web": "(cd web && npm i && npm run start)",
+    "sortingHat": "(cd cmd/sortingHat && go run main.go)",
+    "pensieve": "(cd cmd/pensieve && go run main.go)"
   },
   "author": "",
   "license": "ISC"

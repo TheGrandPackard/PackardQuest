@@ -35,6 +35,10 @@ func (c *client) GetPlayerByID(id int) (*models.Player, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("error getting player by id: %d", resp.StatusCode)
+	}
+
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
@@ -56,6 +60,10 @@ func (c *client) GetPlayerByWandID(wandID int) (*models.Player, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("error getting player by wand id: %d", resp.StatusCode)
+	}
+
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
@@ -87,6 +95,10 @@ func (c *client) UpdatePlayer(playerID int, request models.UpdatePlayerRequest) 
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode >= 400 {
+		return nil, fmt.Errorf("error updating player with id: %d", resp.StatusCode)
+	}
+
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)

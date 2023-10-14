@@ -150,9 +150,10 @@ func handleIRCodes() {
 		// Get player for wand id (GET from api server)
 		player, err := server.GetPlayerByWandID(wandId)
 		if err != nil {
-			log.Println("error getting player:", err)
+			log.Println("Error getting player:", err)
+			return
 		} else {
-			log.Println("got player:", player)
+			log.Println("Got player:", player)
 		}
 
 		// Play audio file for player's house
@@ -174,9 +175,9 @@ func handleIRCodes() {
 			},
 		})
 		if err != nil {
-			log.Println("error updating player:", err)
+			log.Println("Error updating player:", err)
 		} else {
-			log.Println("updated player:", player)
+			log.Println("Updated player:", player)
 		}
 	}
 }

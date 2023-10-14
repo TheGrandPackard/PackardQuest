@@ -58,7 +58,7 @@ func main() {
 	api.NewServer(playerManager, triviaQuestionManager, scoreboardManager)
 	log.Printf("API Started")
 
-	// Capture Ctrl-c to shut down bot
+	// Capture Ctrl-c to shut down server
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop

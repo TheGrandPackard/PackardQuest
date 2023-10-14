@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gopxl/beep"
@@ -15,17 +19,17 @@ import (
 )
 
 var (
-	server = client.NewClient("http://10.0.2.34:8000")
+	server     = client.NewClient("http://10.0.2.34:8000")
+	irCodeChan = make(chan int)
 )
 
 func init() {
-	// if err := rpio.Open(); err != nil {
-	// 	panic(err)
-	// }
 }
 
 func main() {
 	log.Print("Sorting Hat")
+	go receiveIRCodes()
+	go handleIRCodes()
 
 	// Play ambient music
 	go playAudio("sortinghat_ambient.ogg")
@@ -70,10 +74,6 @@ func main() {
 	}
 
 	<-stop
-
-	// if err := rpio.Close(); err != nil {
-	// 	panic(err)
-	// }
 }
 
 func playAudio(fileName string) {
@@ -95,4 +95,78 @@ func playAudio(fileName string) {
 		done <- true
 	})))
 	<-done
+}
+
+func receiveIRCodes() {
+	args := "-r -d /dev/lirc0 --mode2"
+	cmd := exec.Command("ir-ctl", strings.Split(args, " ")...)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		panic(err)
+	}
+	if err := cmd.Start(); err != nil {
+		panic(err)
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+
+	values := []int{}
+	for scanner.Scan() {
+		nextLine := strings.TrimSpace(scanner.Text())
+		nextLineSplit := strings.Split(nextLine, " ")
+
+		// skip lines without 2 parts
+		if len(nextLineSplit) != 2 {
+			continue
+		}
+
+		// get code type from first part
+		codeType := nextLineSplit[0]
+
+		// read pulse from second part
+		if codeType == "pulse" {
+			if pulse, err := strconv.Atoi(nextLineSplit[1]); err != nil {
+				continue
+			} else {
+				value := 0
+				if pulse > 410 {
+					value = 1
+				}
+
+				values = append(values, value)
+			}
+		} else if codeType == "timeout" {
+			if len(values) == 56 {
+				// 0-8 zero
+				// 9-32 wandId
+				// 33-56 motion?
+				// convert from binary to decimal
+				wandId := convertBinarySliceToDecimal(values[9:32])
+				irCodeChan <- wandId
+			}
+
+			// clear pulses
+			values = []int{}
+		}
+	}
+
+	cmd.Wait()
+}
+
+func convertBinarySliceToDecimal(binaryValue []int) int {
+	intValue := uint64(binaryValue[0])
+	for i := 1; i < len(binaryValue); i++ {
+		intValue <<= 1
+		intValue += uint64(binaryValue[i])
+	}
+	return int(intValue)
+}
+
+func handleIRCodes() {
+	for {
+		wandId := <-irCodeChan
+		log.Printf("Found wand code: %d", wandId)
+	}
 }

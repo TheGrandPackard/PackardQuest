@@ -19,12 +19,18 @@ import (
 )
 
 var (
-	server     = client.NewClient("http://10.0.2.34:8000")
+	// API Server configuration
+	server = client.NewClient("http://10.0.2.34:8000")
+
+	// IR Code Processing
 	irCodeChan = make(chan int)
+	lastIrCode = time.Now()
 )
 
-func init() {
-}
+const (
+	// IR Code Processing
+	irCodeDebouce = time.Second * 5
+)
 
 func main() {
 	log.Print("Sorting Hat")
@@ -34,45 +40,9 @@ func main() {
 	// Play ambient music
 	go playAudio("sortinghat_ambient.ogg")
 
-	// TODO: Get id from wand receiver (GPIO read IR receiver)
-	wandID := 1000
 	// Capture Ctrl-c to simulate wand
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	<-stop
-
-	// Get player for wand id (GET from api server)
-	player, err := server.GetPlayerByWandID(wandID)
-	if err != nil {
-		log.Println(err)
-	} else {
-		log.Println(player)
-	}
-
-	// Play audio file for player's house
-	switch player.House {
-	case models.HogwartsHouseGryffindor:
-		go playAudio("sortinghat_gryffindor.ogg")
-	case models.HogwartsHouseHufflepuff:
-		go playAudio("sortinghat_hufflepuff.ogg")
-	case models.HogwartsHouseRavenclaw:
-		go playAudio("sortinghat_ravenclaw.ogg")
-	case models.HogwartsHouseSlytherin:
-		go playAudio("sortinghat_slytherin.ogg")
-	}
-
-	// Update player progress {sortingHat: true} (POST to api server)
-	player, err = server.UpdatePlayer(player.ID, models.UpdatePlayerRequest{
-		Progress: &models.Progress{
-			SortingHat: true,
-		},
-	})
-	if err != nil {
-		log.Println(err)
-	} else {
-		log.Println(player)
-	}
-
 	<-stop
 }
 
@@ -144,6 +114,15 @@ func receiveIRCodes() {
 				// 33-56 motion?
 				// convert from binary to decimal
 				wandId := convertBinarySliceToDecimal(values[9:32])
+
+				// debounce wandId processing
+				if time.Since(lastIrCode) < irCodeDebouce {
+					continue
+				} else {
+					log.Printf("Received wand code: %d", wandId)
+					lastIrCode = time.Now()
+				}
+
 				irCodeChan <- wandId
 			}
 
@@ -167,6 +146,37 @@ func convertBinarySliceToDecimal(binaryValue []int) int {
 func handleIRCodes() {
 	for {
 		wandId := <-irCodeChan
-		log.Printf("Found wand code: %d", wandId)
+
+		// Get player for wand id (GET from api server)
+		player, err := server.GetPlayerByWandID(wandId)
+		if err != nil {
+			log.Println("error getting player:", err)
+		} else {
+			log.Println("got player:", player)
+		}
+
+		// Play audio file for player's house
+		switch player.House {
+		case models.HogwartsHouseGryffindor:
+			go playAudio("sortinghat_gryffindor.ogg")
+		case models.HogwartsHouseHufflepuff:
+			go playAudio("sortinghat_hufflepuff.ogg")
+		case models.HogwartsHouseRavenclaw:
+			go playAudio("sortinghat_ravenclaw.ogg")
+		case models.HogwartsHouseSlytherin:
+			go playAudio("sortinghat_slytherin.ogg")
+		}
+
+		// Update player progress {sortingHat: true} (POST to api server)
+		player, err = server.UpdatePlayer(player.ID, models.UpdatePlayerRequest{
+			Progress: &models.Progress{
+				SortingHat: true,
+			},
+		})
+		if err != nil {
+			log.Println("error updating player:", err)
+		} else {
+			log.Println("updated player:", player)
+		}
 	}
 }

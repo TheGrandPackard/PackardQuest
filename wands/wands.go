@@ -17,6 +17,13 @@ var (
 	lastIrCode = time.Now()
 )
 
+// Receive IR codes from IR receiver using ir-ctl
+// example output lines
+// carrier 36000
+// pulse 940
+// space 860
+// pulse 1790
+// space 1750
 func ReceiveIRCodes(irCodeChan chan int) {
 	args := "-r -d /dev/lirc0 --mode2"
 	cmd := exec.Command("ir-ctl", strings.Split(args, " ")...)
@@ -32,7 +39,7 @@ func ReceiveIRCodes(irCodeChan chan int) {
 	scanner := bufio.NewScanner(stdout)
 	scanner.Split(bufio.ScanLines)
 
-	values := []int{}
+	pulseValues := []int{}
 	for scanner.Scan() {
 		nextLine := strings.TrimSpace(scanner.Text())
 		nextLineSplit := strings.Split(nextLine, " ")
@@ -45,25 +52,29 @@ func ReceiveIRCodes(irCodeChan chan int) {
 		// get code type from first part
 		codeType := nextLineSplit[0]
 
-		// read pulse from second part
+		// read pulse value from second part
 		if codeType == "pulse" {
 			if pulse, err := strconv.Atoi(nextLineSplit[1]); err != nil {
 				continue
 			} else {
-				value := 0
+				pulseValue := 0
+				// convert pulse into high/low (0 or 1).
+				// using reference value of 410 for threshold
 				if pulse > 410 {
-					value = 1
+					pulseValue = 1
 				}
 
-				values = append(values, value)
+				// append pulse value
+				pulseValues = append(pulseValues, pulseValue)
 			}
 		} else if codeType == "timeout" {
-			if len(values) == 56 {
+			// if there were 56 pulses since last timeout, extract data
+			if len(pulseValues) == 56 {
 				// 0-8 zero
 				// 9-32 wandId
 				// 33-56 motion?
 				// convert from binary to decimal
-				wandId := convertBinarySliceToDecimal(values[9:32])
+				wandId := convertBinarySliceToDecimal(pulseValues[9:32])
 
 				// debounce wandId processing
 				if time.Since(lastIrCode) < irCodeDebouce {
@@ -73,14 +84,16 @@ func ReceiveIRCodes(irCodeChan chan int) {
 					lastIrCode = time.Now()
 				}
 
+				// send wandId to channel for processing
 				irCodeChan <- wandId
 			}
 
 			// clear pulses
-			values = []int{}
+			pulseValues = []int{}
 		}
 	}
 
+	//
 	cmd.Wait()
 }
 

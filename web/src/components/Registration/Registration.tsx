@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useRecoilState } from 'recoil';
 import { PlayerResponse, PlayerState } from '../../types/Player';
+import Form from 'react-bootstrap/esm/Form';
+import "./Registration.css";
 
 export interface UserData {
     name: string;
@@ -27,6 +29,12 @@ const Registration: React.FC = () => {
         setUserData({ ...userData, [name]: value });
     }
 
+    function handleSelectChange() {
+
+    }
+
+
+
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
@@ -50,16 +58,33 @@ const Registration: React.FC = () => {
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
+            <form className="form-control pt-4" onSubmit={handleSubmit}>
+                <div className="form-group mb-3">
                 <label>
                     Name:
                     <input type="text" name="name" value={userData.name} onChange={handleInputChange}></input>
                 </label>
-                <br />
+                </div>
+                <div className="form-group mb-3">
+                <label>Wand:
+                <Form.Select onChange={handleSelectChange} aria-label="Select your wand">
+                    <option>Select your wand</option>
+                    <option value="403796">Pearl</option>
+                    <option value="506728">Ruby</option>
+                    <option value="1633612">Wolf</option>
+                    <option value="1705713">Leaf</option>
+                </Form.Select>
+                </label>
                 {formError !== '' && (<label>{formError}</label>)}
-                <br />
-                <button type="submit">Submit</button>
+                </div>
+                
+                <button className="btn btn-primary submit" type="submit">Submit</button>
             </form>
+
+            <div className="symbol">
+            <div className="deathly"></div>
+            <div className="hallows"></div>
+            </div>
         </>
     );
 

@@ -12,7 +12,7 @@ export interface UserData {
 }
 
 const Registration: React.FC = () => {
-    const [userData, setUserData] = React.useState<UserData>({ name: '', wandId: 1 });
+    const [userData, setUserData] = React.useState<UserData>({ name: '', wandId: 0 });
     const [formError, setFormError] = React.useState('');
     const [player, setPlayer] = useRecoilState(PlayerState);
     const navigate = useNavigate();
@@ -27,10 +27,13 @@ const Registration: React.FC = () => {
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target;
         setUserData({ ...userData, [name]: value });
+        console.log(value);
     }
 
-    function handleSelectChange() {
-
+    function handleSelectChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        const {name, value} = event.target;
+        setUserData({...userData, [name]: Number(value)})
+        console.log(value);
     }
 
 
@@ -67,7 +70,7 @@ const Registration: React.FC = () => {
                 </div>
                 <div className="form-group mb-3">
                 <label>Wand:
-                <Form.Select onChange={handleSelectChange} aria-label="Select your wand">
+                <Form.Select name="wandId" onChange={handleSelectChange} aria-label="Select your wand">
                     <option>Select your wand</option>
                     <option value="403796">Pearl</option>
                     <option value="506728">Ruby</option>

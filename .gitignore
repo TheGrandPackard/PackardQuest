@@ -2,3 +2,6 @@ cmd/client/players.json
 .vscode
 cmd/server/players.json
 cmd/server/triviaQuestions.json
+
+*.mp3
+*.ogg

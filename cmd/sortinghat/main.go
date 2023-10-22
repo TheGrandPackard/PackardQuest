@@ -4,14 +4,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"time"
-
-	"github.com/gopxl/beep"
-	"github.com/gopxl/beep/speaker"
-	"github.com/gopxl/beep/vorbis"
 
 	"github.com/thegrandpackard/PackardQuest/client"
 	"github.com/thegrandpackard/PackardQuest/models"
+	"github.com/thegrandpackard/PackardQuest/musicplayer"
 	"github.com/thegrandpackard/PackardQuest/wands"
 )
 
@@ -21,6 +17,13 @@ var (
 
 	// IR Code Processing
 	irCodeChan = make(chan int)
+
+	// Music Player
+	musicPlayer = musicplayer.NewMusicPlayer(
+		[]string{
+			"sortinghat_ambient.ogg",
+		},
+	)
 )
 
 func main() {
@@ -31,33 +34,12 @@ func main() {
 	go handleIRCodes()
 
 	// Play ambient music
-	go playAudio("sortinghat_ambient.ogg")
+	musicPlayer.Play()
 
 	// Capture Ctrl-c to shut down server
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
-}
-
-func playAudio(fileName string) {
-	f, err := os.Open(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	streamer, format, err := vorbis.Decode(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer streamer.Close()
-
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-
-	done := make(chan bool)
-	speaker.Play(beep.Seq(streamer, beep.Callback(func() {
-		done <- true
-	})))
-	<-done
 }
 
 func handleIRCodes() {
@@ -76,13 +58,13 @@ func handleIRCodes() {
 		// Play audio file for player's house
 		switch player.House {
 		case models.HogwartsHouseGryffindor:
-			go playAudio("sortinghat_gryffindor.ogg")
+			musicPlayer.Interrupt("sortinghat_gryffindor.mp3")
 		case models.HogwartsHouseHufflepuff:
-			go playAudio("sortinghat_hufflepuff.ogg")
+			musicPlayer.Interrupt("sortinghat_hufflepuff.mp3")
 		case models.HogwartsHouseRavenclaw:
-			go playAudio("sortinghat_ravenclaw.ogg")
+			musicPlayer.Interrupt("sortinghat_ravenclaw.mp3")
 		case models.HogwartsHouseSlytherin:
-			go playAudio("sortinghat_slytherin.ogg")
+			musicPlayer.Interrupt("sortinghat_slytherin.mp3")
 		}
 
 		// Update player progress {sortingHat: true} (POST to api server)

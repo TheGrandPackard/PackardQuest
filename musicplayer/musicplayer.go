@@ -19,12 +19,14 @@ type MusicPlayer interface {
 
 	Play() error
 	Stop() error
+	Interrupt(string) error
 	Next() error
 }
 
 type musicPlayer struct {
-	currentSong *int
-	songs       []string
+	currentSong   *int
+	songs         []string
+	interruptSong *string
 
 	streamer beep.StreamSeekCloser
 	ctrl     *beep.Ctrl
@@ -46,6 +48,11 @@ func NewMusicPlayer(songs []string) MusicPlayer {
 func (p *musicPlayer) doneHandler() {
 	for {
 		<-p.doneChan
+		// Reset interrupt song
+		if p.interruptSong != nil {
+			p.interruptSong = nil
+		}
+
 		if err := p.Next(); err != nil {
 			log.Println("Error playing next:", err.Error())
 			continue
@@ -55,6 +62,9 @@ func (p *musicPlayer) doneHandler() {
 }
 
 func (p *musicPlayer) GetCurrentSongName() string {
+	if p.interruptSong != nil {
+		return *p.interruptSong
+	}
 	if p.currentSong == nil {
 		return "No current song selected"
 	}
@@ -79,7 +89,17 @@ func (p *musicPlayer) Stop() error {
 	return p.stop()
 }
 
+func (p *musicPlayer) Interrupt(fileName string) error {
+	p.interruptSong = &fileName
+
+	return p.play()
+}
+
 func (p *musicPlayer) Next() error {
+	// Reset interrupt song
+	if p.interruptSong != nil {
+		p.interruptSong = nil
+	}
 	if err := p.getNextSong(); err != nil {
 		return err
 	}
@@ -110,6 +130,11 @@ func (p *musicPlayer) getNextSong() error {
 
 func (p *musicPlayer) play() error {
 	fileName := p.songs[*p.currentSong]
+
+	// Override with interrupt song
+	if p.interruptSong != nil {
+		fileName = *p.interruptSong
+	}
 
 	f, err := os.Open(fileName)
 	if err != nil {

@@ -50,13 +50,28 @@ func main() {
 func processStdIn() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	log.Println("Controls: [p]lay, [s]top, [n]ext, [l]ist (press Ctrl+C to end)")
+	log.Println("Controls: [p]lay, [s]top, [i]nterrupt {fileName}, [n]ext, [l]ist (press Ctrl+C to end)")
 
 	// Read input line by line
 	for scanner.Scan() {
 		text := scanner.Text() // Get the current line of text
 		if text == "" {
 			break // Exit loop if an empty line is entered
+		}
+
+		if strings.HasPrefix(text, "i ") || strings.HasPrefix(text, "interrupt ") {
+			textParts := strings.Split(text, " ")
+			if len(textParts) < 2 {
+				log.Println("Error interrupting without filename")
+				continue
+			}
+
+			if err := player.Interrupt(textParts[1]); err != nil {
+				log.Println("Error interrupting:", err.Error())
+				continue
+			}
+			log.Println("Interrupting to play:", player.GetCurrentSongName())
+			continue
 		}
 
 		switch text {

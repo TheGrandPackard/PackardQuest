@@ -8,7 +8,7 @@ import (
 )
 
 func (a *api) getScoreboard(c *gin.Context) {
-	houses, players, err := a.scorebaordManager.GetScoreboards()
+	houses, players, err := a.scoreboardManager.GetScoreboards()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, newApiError(err))
 		return

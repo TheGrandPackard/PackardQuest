@@ -25,13 +25,30 @@ func (a *api) websocketUpgraderPlayer(c *gin.Context) {
 	}
 
 	// add connection to client map, closing previous connection for player if set
-	if _, ok := a.clients[id]; ok {
-		if err := a.clients[id].Close(); err != nil {
+	if _, ok := a.playerWebscocketConnections[id]; ok {
+		if err := a.playerWebscocketConnections[id].Close(); err != nil {
 			log.Println("error closing previous player connection:", err)
 		}
-		delete(a.clients, id)
+		delete(a.playerWebscocketConnections, id)
 	}
-	a.clients[id] = conn
+	a.playerWebscocketConnections[id] = conn
+}
+
+func (a *api) websocketUpgraderPensieve(c *gin.Context) {
+	// upgrade connection
+	conn, err := a.upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		return
+	}
+
+	// store pensieve connection, closing previous connection for pensieve if set
+	if a.pensieveWebsocketConnection != nil {
+		if err := a.pensieveWebsocketConnection.Close(); err != nil {
+			log.Println("error closing previous pensieve connection:", err)
+		}
+		a.pensieveWebsocketConnection = nil
+	}
+	a.pensieveWebsocketConnection = conn
 }
 
 type playerUpdate struct {
@@ -40,7 +57,7 @@ type playerUpdate struct {
 }
 
 func (a *api) OnPlayerUpdate(player *models.Player) {
-	if conn, ok := a.clients[player.ID]; ok {
+	if conn, ok := a.playerWebscocketConnections[player.ID]; ok {
 		playerUpdate := playerUpdate{
 			Type:   "playerUpdate",
 			Player: player,

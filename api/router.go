@@ -14,10 +14,11 @@ import (
 type api struct {
 	playerManager         interfaces.PlayerManager
 	triviaQuestionManager interfaces.TriviaQuestionManager
-	scorebaordManager     interfaces.ScoreboardManager
+	scoreboardManager     interfaces.ScoreboardManager
 
-	upgrader websocket.Upgrader
-	clients  map[int]*websocket.Conn
+	upgrader                    websocket.Upgrader
+	playerWebscocketConnections map[int]*websocket.Conn
+	pensieveWebsocketConnection *websocket.Conn
 }
 
 func NewServer(
@@ -28,14 +29,14 @@ func NewServer(
 	a := &api{
 		playerManager:         playerManager,
 		triviaQuestionManager: triviaQuestionmanager,
-		scorebaordManager:     scoreboardManager,
+		scoreboardManager:     scoreboardManager,
 
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		clients: map[int]*websocket.Conn{},
+		playerWebscocketConnections: map[int]*websocket.Conn{},
 	}
 
 	r := gin.Default()
@@ -53,7 +54,9 @@ func NewServer(
 		})
 	})
 
+	// websockets
 	r.GET("ws/player/:id", a.websocketUpgraderPlayer)
+	r.GET("ws/pensieve", a.websocketUpgraderPensieve)
 
 	apiLatest := r.Group("api/latest")
 

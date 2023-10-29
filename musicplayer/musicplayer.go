@@ -20,6 +20,7 @@ type MusicPlayer interface {
 	Play() error
 	Stop() error
 	Interrupt(string) error
+	IsInterrupted() bool
 	Next() error
 }
 
@@ -93,6 +94,10 @@ func (p *musicPlayer) Interrupt(fileName string) error {
 	p.interruptSong = &fileName
 
 	return p.play()
+}
+
+func (p *musicPlayer) IsInterrupted() bool {
+	return p.interruptSong != nil
 }
 
 func (p *musicPlayer) Next() error {

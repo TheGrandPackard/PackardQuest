@@ -78,6 +78,7 @@ func ReceiveIRCodes(irCodeChan chan int) {
 
 				// debounce wandId processing
 				if time.Since(lastIrCode) < irCodeDebouce {
+					log.Printf("Ignoring wand code: %d - debounce not met", wandId)
 					continue
 				} else {
 					log.Printf("Received wand code: %d", wandId)

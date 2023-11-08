@@ -27,7 +27,13 @@ const PlayerInfoModal: React.FC<PlayerInfoModalProps> = (props) => {
 
           <Form.Group className="mb-3" controlId="formWandId">
             <Form.Label>Wand ID</Form.Label>
-            <Form.Control type="number" placeholder="1000" />
+            <Form.Select name="wandId" aria-label="Select your wand">
+                    <option>Select your wand</option>
+                    <option value="403796">Pearl</option>
+                    <option value="506728">Ruby</option>
+                    <option value="1633612">Wolf</option>
+                    <option value="1705713">Leaf</option>
+                </Form.Select>
           </Form.Group>
           <Button variant="primary" onClick={props.handleUpdateWandId}>
             Submit

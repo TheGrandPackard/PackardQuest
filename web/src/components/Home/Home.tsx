@@ -3,6 +3,7 @@ import { useRecoilState } from "recoil";
 import PlayerState, { PlayerResponse } from "../../types/Player";
 import Scoreboard from "../Scoreboard/Scoreboard";
 import "./Home.css";
+import axios from 'axios';
 import Header from "../Header/Header";
 import useWebSocket from "react-use-websocket";
 import { WebsocketUpdate } from "../../types/Websocket";
@@ -15,9 +16,15 @@ const Home: React.FC = () => {
 
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
-  const handleUpdateWandId = () => setShow(false);
-  const handleResetPlayer = () => setShow(false);
-
+  const handleUpdateWandId = () => {
+    axios
+            .put<PlayerResponse>("http://localhost:8000/api/latest/player/" + player?.id, {wandID:player?.wandID}, {})
+  } 
+  const handleResetPlayer = () => {
+    setPlayer(undefined)
+    localStorage.clear();
+  }
+    
   useWebSocket("ws://localhost:8000/ws/player/" + player?.id, {
     onOpen: () => console.log("WebSocket connection opened."),
     onClose: () => console.log("WebSocket connection closed."),

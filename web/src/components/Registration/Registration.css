@@ -1,0 +1,78 @@
+.reg-form input {
+    margin-top: 2em; 
+}
+
+.reg-form .submit {
+    background-color: #5C0E07;
+}
+
+.symbol {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    opacity: .02;
+    height: 210px;
+  }
+  
+  .symbol .deathly {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    width: 230px;
+    height: 5px;
+    background-color: black;
+    border-radius: 7px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+  
+  .symbol .deathly:before,
+  .symbol .deathly:after {
+    position: absolute;
+    content: '';
+    bottom: -14px;
+    width: 5px;
+    height: 224px;
+    background-color: black;
+    border-radius: 7px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    z-index: 11;
+  }
+  
+  .symbol .deathly:before {
+    left: 56px;
+    transform: rotate(30.75deg);
+  }
+  
+  .symbol .deathly:after {
+    right: 56px;
+    transform: rotate(-30.5deg);
+  }
+  
+  .symbol .hallows {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    width: 130px;
+    height: 130px;
+    border: 5px solid black;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+  }
+  
+  .symbol .hallows:before {
+    position: absolute;
+    content: '';
+    top: -68px;
+    left: 50%;
+    width: 5px;
+    height: 190px;
+    background-color: black;
+    border-radius: 7px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%);
+  }
